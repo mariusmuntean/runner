@@ -20,6 +20,12 @@ function openMysteryCrate(){
  else{player.frenzy=Math.max(player.frenzy,7);toast("Crate: score frenzy")}
  beep(900,.14,"triangle");
 }
+function spawnBonusMagnetReward(offset=0){
+ const bag=["shield","magnet","dash","bonus","jumpBoost","heart","slow","frenzy","coinRain","goldenHeart","guardian","blaster","freeze","rocket","mystery"];
+ const type=bag[Math.floor(Math.random()*bag.length)];
+ const minY=Math.max(groundY()-190,H*.52),maxY=groundY()-82;
+ powers.push({type,x:W+35+offset,y:minY+Math.random()*Math.max(24,maxY-minY),r:12});
+}
 function update(dt){
  if(!["running","tutorial"].includes(state))return;
  distance+=dt*100;score+=dt*(5+mult)*(player.frenzy>0?2:1);worldSpeed=(255+Math.min(score*1.35,150))*(player.slow>0?.62:1)*(freezeWorld>0?.38:1);groundOffset=(groundOffset+worldSpeed*dt)%80;
@@ -41,6 +47,14 @@ function update(dt){
  spawnT-=dt*60;if(spawnT<=0){if(rewardWave<=0)spawnHazard();spawnT=(bossT>0?46:Math.max(58,92-score*.02))+Math.random()*32}
  starT-=dt*60;if(starT<=0){spawnStarRow();starT=85+Math.random()*80}
  powerT-=dt*60;if(powerT<=0){spawnPower();powerT=300+Math.random()*220}
+ if(player.bonusMagnet>0){
+   player.bonusMagnetSpawnT=Math.max(0,(player.bonusMagnetSpawnT||0)-dt);
+   const usefulAhead=powers.some(p=>p.type!=="bonusMagnet"&&p.x>player.x-20&&p.x<W+100);
+   if(player.bonusMagnetSpawnT<=0||!usefulAhead){
+     spawnBonusMagnetReward(25);
+     player.bonusMagnetSpawnT=2.2;
+   }
+ }else player.bonusMagnetSpawnT=0;
  if(rewardWave>0&&Math.random()<dt*2.2){powers.push({type:Math.random()<.5?"mystery":"heart",x:W+25,y:groundY()-100-Math.random()*100,r:12})}
  if(coinRain>0&&Math.random()<dt*(bonusFrenzy>0?13:7)){stars.push({x:W+20,y:110+Math.random()*(H-240),r:7})}
  if(bonusFrenzy>0&&Math.random()<dt*.8){powers.push({type:Math.random()<.5?"magnet":"heart",x:W+30,y:130+Math.random()*(H-260),r:12})}
@@ -144,7 +158,10 @@ function update(dt){
       }else if(p.type==="mystery"){
         openMysteryCrate();
       }else if(p.type==="bonusMagnet"){
-        player.bonusMagnet=12;toast("Bonus magnet activated");beep(860,.16,"triangle");
+        player.bonusMagnet=15;player.bonusMagnetSpawnT=2.2;
+        spawnBonusMagnetReward(20);spawnBonusMagnetReward(115);spawnBonusMagnetReward(210);
+        powerT=Math.min(powerT,90);
+        toast("Bonus magnet: boosters incoming!");beep(860,.16,"triangle");
       }else if(p.type==="guardian"){
         guardian=Math.min(3,guardian+1);toast(`Guardian ready ×${guardian}`);beep(1040,.2,"sine");
       }else if(p.type==="bonusFrenzy"){
