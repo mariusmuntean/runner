@@ -2,12 +2,14 @@ function pxRect(c,x,y,w,h,color,s=2){c.fillStyle=color;c.fillRect(Math.round(x*s
 function drawPixelCharacter(c,x,y,type,time,preview=false,vy=0){
  c.save();c.translate(Math.round(x),Math.round(y));c.imageSmoothingEnabled=false;
  const grounded=preview||Math.abs(vy)<45;
- const phase=time*18;
- const stride=grounded?Math.sin(phase):0;
- const bob=grounded?Math.round(Math.abs(Math.sin(phase))*2):0;
- const front=Math.round(stride*6),back=-front;
- const frontLift=grounded?Math.round(Math.max(0,-stride)*4):0;
- const backLift=grounded?Math.round(Math.max(0,stride)*4):0;
+ const speedScale=preview?1:Math.max(.2,Math.min(1.65,worldSpeed/255));
+ const limbPhase=time*38*speedScale;
+ const bodyPhase=time*12*speedScale;
+ const stride=grounded?Math.sin(limbPhase):0;
+ const bob=grounded?Math.round(Math.abs(Math.sin(bodyPhase))*2):0;
+ const front=Math.round(stride*7),back=-front;
+ const frontLift=grounded?Math.round(Math.max(0,-stride)*5):0;
+ const backLift=grounded?Math.round(Math.max(0,stride)*5):0;
  const rising=!preview&&vy<-80,falling=!preview&&vy>80;
  const airFront=rising?5:falling?2:0,airBack=rising?-3:falling?5:0;
  const lf=grounded?front:airFront,lb=grounded?back:airBack;
