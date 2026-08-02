@@ -18,7 +18,7 @@
   function activateNext() {
     active = queue.shift() || null;
     fireTimer = 0;
-    if (player) player.blaster = active ? 999 : 0;
+    if (player) player.blaster = 0;
     if (active) toast(`${specs[active.type].label} ready`);
   }
   function consume() {
@@ -62,7 +62,7 @@
   function interceptWeaponPickups() {
     for (let i = powers.length - 1; i >= 0; i--) {
       const p = powers[i];
-      if (Math.hypot(player.x - p.x, player.y - p.y) >= player.r + p.r + 5) continue;
+      if (Math.hypot(player.x - p.x, player.y - p.y) >= player.r + p.r + 28) continue;
       let type = null;
       if (p.type === "blaster") type = "water";
       else if (p.type === "bulletGun") type = "bullet";
